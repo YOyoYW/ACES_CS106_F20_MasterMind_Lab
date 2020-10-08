@@ -9,7 +9,7 @@ class MastermindGame:
         self.code_length = 4
         self.possible_nums = 6
         self.code = (0,)
-        self.code_digit_count = None
+        self.code_digit_count = dict()
         self.previous_guesses = list()
 
 
@@ -20,21 +20,35 @@ class MastermindGame:
     def generate_code(self):
         length = self.code_length
         possibilities = self.possible_nums
+        
 
         ## TODO: Generate a random code
         ## HINT: https://www.w3schools.com/python/ref_random_randint.asp
         ## How should we save the code?
+        code = list()
+        
+        for i in range(0, length):
+            num = random.randint(0, possibilities - 1)
+            code.append(num)
+           
+            self.code = tuple(code)
+            self.code_digit_count = self.count_digits(code)
 
-        self.code = (0,0,0,0)
+
+       
 
 ##----------------------------------------------------------------------------##
 
     ## Count how many times a number appears in the code
     def count_digits(self, code):
-        digit_count = None
+        digit_count = dict()
 
         ## TODO: Counting can't be that hard!
         ## What data type should digit_count be?
+
+        for digit in range (0, self.possible_nums):
+            digit_count[digit] = code.count(digit)
+            
 
         return digit_count
 
@@ -47,12 +61,21 @@ class MastermindGame:
     ## correct_positions should = 1
     def check_guess(self, guess):
         code = self.code
+        code_digit_count = self.code_digit_count
+        guess_digit_count = self.count_digits(guess)
         
         correct_nums = 0
         correct_positions = 0
 
         ## TODO: We want to check how correct the guess is
         ## HINT: Why did we write count_digits()?
+
+        for digit in range(0, self.possible_nums):
+            correct_nums += min(code_digit_count[digit], guess_digit_count[digit])
+
+        for i in range(0, self.code_length):
+            if code[i] == guess[i]:
+                correct_positions += 1
 
         return correct_nums, correct_positions
 
@@ -82,28 +105,33 @@ class MastermindGame:
         ## TODO: Check guess to make sure it doesn't break your program
         ## HINT: https://www.w3schools.com/python/python_ref_string.asp
         ## HINT: Guess is a string, how do we know it only has numbers?
+        guess = (0,0,0,1)
+        is_valid_guess = guess.isdigit()
+        
+            
 
-        return False
+        return True
 
 ##----------------------------------------------------------------------------##
 
     ## Ask the player for a guess and get the guess
     ## Check if the guess is valid and ask again if it is not.
     def get_guess(self):
-        guess = (0,)
+        valid_guess = False
 
         ## TODO: Read input, check if valid, repeat until valid.
         ## HINT: https://www.w3schools.com/python/ref_func_input.asp
         
         print('Enter your guess: ')
-        guess =
+        while True:
+            guess = input()
+            if len(guess) == self.code_length and guess.isdigit():
+                guess = tuple([int(digit) for digit in guess])
+                if min(guess) >= 0 and max(guess) < self.possible_nums:
+                    return guess
 
-        while !self.is_valid_guess(guess):
             print('Please enter a valid guess: Ex \'0123\'')
-            guess = 
-
-        return guess
-
+            
 ##----------------------------------------------------------------------------##
 
     ## Starts the game
@@ -112,30 +140,37 @@ class MastermindGame:
     def start(self, code_length=4, possible_nums=6):
         self.code_length = code_length
         self.possible_nums = possible_nums
+        self.generate_code()
 
         ## Determines the number of guesses you get, you can change this to give
         ## yourself more or less guesses if you want.
         max_guesses = int(code_length * possible_nums // 1.6)
 
         print('The code is {0} digits from 0 - {1}. You have {2} guesses'.format(code_length, possible_nums - 1, max_guesses))
-        
+
         ## TODO:
-        ## Generate code
-        
+        ## Generate code        
         ## Get Player Guess
-        
         ## Check Player Guess
+        for i in range(0, max_guesses):
+            guess = self.get_guess()
+            correct_nums, correct_positions = self.check_guess(guess)
 
-        print('{0} has {1} correct numbers and {2} numbers in the correct position.'.format(guess, correct_nums, correct_positions))
+            print('{0} has {1} correct numbers and {2} numbers in the correct position.'.format(guess, correct_nums, correct_positions))
 
-        ## Check if player has won
-        if some_code_here:
-            print('Congratulations, you figured out the code!')
+
+            if correct_positions == code_length:
+                print('Congratulations, you figured out the code!')
+                return
+                
+        print("Darn, you ran out of guesses!")
         
+        
+        ## Check if player has won
         ## Repeat 'max_guesses' number of times
 
-        print('Darn, you ran out of guesses!')
-        print('The code was {0}'.format(self.code))
+        #print('Darn, you ran out of guesses!')
+        #print('The code was {0}'.format(self.code))
 
 ##----------------------------------------------------------------------------##
 
